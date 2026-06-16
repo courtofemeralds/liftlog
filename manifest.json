@@ -1,0 +1,19 @@
+{
+  "name": "LiftLog",
+  "short_name": "LiftLog",
+  "description": "Track your lifts, see your progress",
+  "start_url": "/liftlog/",
+  "scope": "/liftlog/",
+  "display": "standalone",
+  "background_color": "#f2f2f7",
+  "theme_color": "#f2f2f7",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/liftlog/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
