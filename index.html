@@ -380,15 +380,28 @@
     .trend-down { color: #ff3b30; }
     .trend-flat { color: #8e8e93; }
 
-    /* ── TEMPLATE EDITOR ── */
-    .editor-ex-row {
+    /* ── WORKOUT DETAIL / EDITOR VIEW ── */
+    #workout-detail-view { display: none; }
+    .detail-view-header {
+      background: #fff; padding: 14px 16px;
+      border-bottom: 0.5px solid #e5e5ea;
       display: flex; align-items: center; gap: 10px;
-      padding: 10px 16px; border-bottom: 0.5px solid #e5e5ea;
     }
-    .editor-ex-row:last-child { border-bottom: none; }
-    .editor-ex-info { flex: 1; min-width: 0; }
-    .editor-ex-name { font-size: 15px; font-weight: 500; }
-    .editor-ex-meta { font-size: 12px; color: #8e8e93; margin-top: 1px; }
+    .back-btn {
+      background: none; border: none; color: #007aff; font-family: inherit;
+      font-size: 17px; cursor: pointer; padding: 0;
+      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+    }
+    .back-btn:active { opacity: 0.6; }
+    .detail-view-title { font-size: 17px; font-weight: 600; flex: 1; text-align: center; }
+    .edit-ex-row {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-bottom: 0.5px solid #e5e5ea; background: #fff;
+    }
+    .edit-ex-row:last-child { border-bottom: none; }
+    .edit-ex-info { flex: 1; min-width: 0; }
+    .edit-ex-name { font-size: 16px; font-weight: 500; }
+    .edit-ex-meta { font-size: 13px; color: #8e8e93; margin-top: 2px; }
 
     /* ── EMPTY STATE ── */
     .empty-state { text-align: center; padding: 48px 20px; color: #8e8e93; }
@@ -436,17 +449,27 @@
           </div>
         </div>
       </div>
-
       <div class="section">
-        <div class="section-header">
-          <div class="section-label" style="margin:0;">Your Workouts</div>
-        </div>
+        <div class="section-label">Your Workouts</div>
         <div id="template-list"></div>
         <button class="ios-btn secondary" onclick="startBlankWorkout()" style="margin-top:10px;">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Start Custom Workout
         </button>
       </div>
+    </div>
+
+    <!-- Workout Detail / Edit View -->
+    <div id="workout-detail-view">
+      <div class="detail-view-header">
+        <button class="back-btn" onclick="closeDetailView()">
+          <svg width="10" height="16" viewBox="0 0 10 16" fill="none"><path d="M8 1L2 8l6 7" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back
+        </button>
+        <div class="detail-view-title" id="detail-view-title">Workout A</div>
+        <div style="width:60px;"></div>
+      </div>
+      <div class="section" id="detail-view-body"></div>
     </div>
 
     <!-- Active Workout -->
@@ -619,25 +642,32 @@
   </div>
 </div>
 
-<!-- Template Editor -->
-<div class="modal-overlay" id="modal-editor">
+<!-- Add / Edit Exercise Modal -->
+<div class="modal-overlay" id="modal-add-ex">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div class="modal-title" id="editor-title" style="margin:0;">Edit Workout</div>
-      <button class="text-btn" onclick="closeAllModals()">Done</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div class="modal-title" id="add-ex-modal-title" style="margin:0;">Add Exercise</div>
+      <button class="text-btn" onclick="closeAllModals()">Cancel</button>
     </div>
-    <div id="editor-body"></div>
-  </div>
-</div>
-
-<!-- Editor: Add Exercise to Template -->
-<div class="modal-overlay" id="modal-editor-add-ex">
-  <div class="modal-sheet">
-    <div class="modal-handle"></div>
-    <div class="modal-title">Add to Template</div>
-    <input class="search-input-inner" placeholder="Search…" id="editor-ex-search" oninput="filterEditorExSearch(this.value)">
-    <div id="editor-ex-list"></div>
+    <input class="search-input-inner" placeholder="Search suggestions…" id="add-ex-input"
+      oninput="filterAddExSuggestions(this.value)" autocomplete="off" style="margin-bottom:8px;">
+    <div id="add-ex-suggestions" style="margin-bottom:14px;max-height:140px;overflow-y:auto;"></div>
+    <div class="modal-label">Exercise Name</div>
+    <input class="modal-input" placeholder="e.g. Overhead Tricep Extension" id="add-ex-name-field" autocomplete="off" autocorrect="off">
+    <div class="modal-label">Equipment <span style="font-weight:400;text-transform:none;color:#c7c7cc;">(optional)</span></div>
+    <input class="modal-input" placeholder="e.g. Dumbbell, Barbell, Cable…" id="add-ex-equip-field" autocomplete="off" autocorrect="off">
+    <div style="display:flex;gap:10px;">
+      <div style="flex:1;">
+        <div class="modal-label">Sets</div>
+        <input class="modal-input" type="number" placeholder="3" id="add-ex-sets-field" inputmode="numeric" min="1">
+      </div>
+      <div style="flex:1;">
+        <div class="modal-label">Rep Range <span style="font-weight:400;text-transform:none;color:#c7c7cc;">(optional)</span></div>
+        <input class="modal-input" placeholder="e.g. 8–15" id="add-ex-reps-field" autocomplete="off">
+      </div>
+    </div>
+    <button class="ios-btn" onclick="saveExModal()" style="margin-top:4px;">Save</button>
   </div>
 </div>
 
@@ -760,114 +790,148 @@ function renderTemplates() {
   const templates = getTemplates();
   const container = document.getElementById('template-list');
   container.innerHTML = Object.entries(templates).map(([key, t]) => `
-    <div class="template-card" style="margin-bottom:10px;">
-      <div class="template-card-header" onclick="startWorkout('${key}')">
+    <div class="template-card" style="margin-bottom:10px;" onclick="openDetailView('${key}')">
+      <div class="template-card-header">
         <div>
           <div class="template-name">${t.name}</div>
-          <div class="template-meta">${t.exercises.length} exercises · Full Body</div>
+          <div class="template-meta">${t.exercises.length} exercises · Tap to view & edit</div>
         </div>
         <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#c7c7cc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </div>
-      <div class="template-actions">
-        <button class="text-btn sm" onclick="openEditor('${key}')">Edit Workout</button>
       </div>
     </div>
   `).join('');
 }
 
 // ══════════════════════════════════════════════
-// TEMPLATE EDITOR
+// WORKOUT DETAIL / EDIT VIEW
 // ══════════════════════════════════════════════
-function openEditor(key) {
+function openDetailView(key) {
   editingTemplateKey = key;
-  renderEditorBody();
-  openModal('modal-editor');
+  document.getElementById('log-idle').style.display = 'none';
+  document.getElementById('workout-detail-view').style.display = 'block';
+  renderDetailView();
 }
 
-function renderEditorBody() {
+function closeDetailView() {
+  document.getElementById('workout-detail-view').style.display = 'none';
+  document.getElementById('log-idle').style.display = 'block';
+}
+
+function renderDetailView() {
   const templates = getTemplates();
   const t = templates[editingTemplateKey];
-  document.getElementById('editor-title').textContent = 'Edit ' + t.name;
-  document.getElementById('editor-body').innerHTML = `
+  document.getElementById('detail-view-title').textContent = t.name;
+  document.getElementById('detail-view-body').innerHTML = `
     <div class="card" style="margin-bottom:12px;">
-      ${t.exercises.map((ex, i) => `
-        <div class="editor-ex-row">
-          <div class="editor-ex-info">
-            <div class="editor-ex-name">${ex.name}</div>
-            <div class="editor-ex-meta">${ex.equip} · ${ex.sets} sets · ${ex.reps} reps</div>
+      ${t.exercises.length === 0
+        ? '<div style="padding:20px;text-align:center;color:#8e8e93;">No exercises yet — add one below</div>'
+        : t.exercises.map((ex, i) => `
+          <div class="edit-ex-row">
+            <div class="edit-ex-info">
+              <div class="edit-ex-name">${ex.name}</div>
+              <div class="edit-ex-meta">${[ex.equip, ex.sets ? ex.sets + ' sets' : '', ex.reps ? ex.reps + ' reps' : ''].filter(Boolean).join(' · ')}</div>
+            </div>
+            <button class="text-btn sm" onclick="openEditExModal(${i})" style="margin-right:4px;">Edit</button>
+            <button class="text-btn sm red" onclick="detailRemoveEx(${i})">Remove</button>
           </div>
-          <button class="text-btn sm" onclick="openEditorSwapEx(${i})">Swap</button>
-          <button class="text-btn sm red" onclick="editorRemoveEx(${i})">Remove</button>
-        </div>
-      `).join('')}
+        `).join('')}
     </div>
-    <button class="ios-btn secondary" onclick="openEditorAddEx()">
+    <button class="ios-btn secondary" onclick="openAddExModal()" style="margin-bottom:10px;">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Add Exercise
+    </button>
+    <button class="ios-btn" onclick="startWorkout('${editingTemplateKey}')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Start ${t.name}
     </button>
   `;
 }
 
-function editorRemoveEx(idx) {
+function detailRemoveEx(idx) {
   const templates = getTemplates();
   templates[editingTemplateKey].exercises.splice(idx, 1);
   saveTemplates(templates);
-  renderEditorBody();
+  renderDetailView();
   renderTemplates();
 }
 
-let swappingExIdx = null;
-function openEditorSwapEx(idx) {
-  swappingExIdx = idx;
-  document.getElementById('editor-ex-search').value = '';
-  filterEditorExSearch('');
-  openModal('modal-editor-add-ex');
+// ══════════════════════════════════════════════
+// ADD / EDIT EXERCISE MODAL (free text)
+// ══════════════════════════════════════════════
+let editingExIdx = null; // null = adding new, number = editing existing
+
+function openAddExModal() {
+  editingExIdx = null;
+  document.getElementById('add-ex-modal-title').textContent = 'Add Exercise';
+  document.getElementById('add-ex-input').value = '';
+  document.getElementById('add-ex-name-field').value = '';
+  document.getElementById('add-ex-equip-field').value = '';
+  document.getElementById('add-ex-sets-field').value = '3';
+  document.getElementById('add-ex-reps-field').value = '';
+  openModal('modal-add-ex');
+  setTimeout(() => document.getElementById('add-ex-name-field').focus(), 300);
 }
 
-function openEditorAddEx() {
-  swappingExIdx = null;
-  document.getElementById('editor-ex-search').value = '';
-  filterEditorExSearch('');
-  openModal('modal-editor-add-ex');
+function openEditExModal(idx) {
+  editingExIdx = idx;
+  const templates = getTemplates();
+  const ex = templates[editingTemplateKey].exercises[idx];
+  document.getElementById('add-ex-modal-title').textContent = 'Edit Exercise';
+  document.getElementById('add-ex-input').value = '';
+  document.getElementById('add-ex-name-field').value = ex.name;
+  document.getElementById('add-ex-equip-field').value = ex.equip || '';
+  document.getElementById('add-ex-sets-field').value = ex.sets || 3;
+  document.getElementById('add-ex-reps-field').value = ex.reps || '';
+  openModal('modal-add-ex');
 }
 
-function filterEditorExSearch(q) {
-  const filtered = q
-    ? EXERCISE_LIBRARY.filter(e => e.name.toLowerCase().includes(q.toLowerCase()))
-    : EXERCISE_LIBRARY;
-  document.getElementById('editor-ex-list').innerHTML = filtered.slice(0,30).map(e => `
-    <div class="ex-pick-row" onclick='editorPickEx(${JSON.stringify(e).replace(/'/g,"&#39;")})'>
-      <div>
-        <div class="ex-pick-name">${e.name}</div>
-        <div class="ex-pick-meta">${e.equip} · ${e.cat}</div>
-      </div>
+function saveExModal() {
+  const name = document.getElementById('add-ex-name-field').value.trim();
+  if (!name) { showToast('Enter an exercise name'); return; }
+  const equip = document.getElementById('add-ex-equip-field').value.trim();
+  const sets  = parseInt(document.getElementById('add-ex-sets-field').value) || 3;
+  const reps  = document.getElementById('add-ex-reps-field').value.trim();
+
+  const templates = getTemplates();
+  const newEx = { name, equip, sets, reps, variants: null, cat: '' };
+
+  if (editingExIdx !== null) {
+    templates[editingTemplateKey].exercises[editingExIdx] = newEx;
+  } else {
+    templates[editingTemplateKey].exercises.push(newEx);
+  }
+  saveTemplates(templates);
+  closeAllModals();
+  renderDetailView();
+  renderTemplates();
+  showToast(editingExIdx !== null ? 'Exercise updated' : 'Exercise added');
+}
+
+function filterAddExSuggestions(q) {
+  const list = document.getElementById('add-ex-suggestions');
+  if (!q) { list.innerHTML = ''; return; }
+  const filtered = EXERCISE_LIBRARY.filter(e => e.name.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+  list.innerHTML = filtered.map(e => `
+    <div class="ex-pick-row" style="padding:8px 0;" onclick="pickAddExSuggestion('${e.name.replace(/'/g,"\\'")}','${(e.equip||'').replace(/'/g,"\\'")}')">
+      <div class="ex-pick-name" style="font-size:15px;">${e.name}</div>
       <svg width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="#c7c7cc" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
   `).join('');
 }
 
-function editorPickEx(ex) {
-  const templates = getTemplates();
-  const t = templates[editingTemplateKey];
-  const newEx = { name: ex.name, variants: null, sets: 3, reps: '8–15', equip: ex.equip, cat: ex.cat };
-  if (swappingExIdx !== null) {
-    t.exercises[swappingExIdx] = newEx;
-  } else {
-    t.exercises.push(newEx);
-  }
-  saveTemplates(templates);
-  // Close add modal, re-render editor
-  document.getElementById('modal-editor-add-ex').classList.remove('open');
-  renderEditorBody();
-  renderTemplates();
-  showToast(swappingExIdx !== null ? 'Exercise swapped' : 'Exercise added');
-  swappingExIdx = null;
+function pickAddExSuggestion(name, equip) {
+  document.getElementById('add-ex-name-field').value = name;
+  document.getElementById('add-ex-equip-field').value = equip;
+  document.getElementById('add-ex-input').value = '';
+  document.getElementById('add-ex-suggestions').innerHTML = '';
 }
 
 // ══════════════════════════════════════════════
 // START WORKOUT
 // ══════════════════════════════════════════════
 function startWorkout(templateKey) {
+  document.getElementById('workout-detail-view').style.display = 'none';
+  document.getElementById('log-idle').style.display = 'none';
   const templates = getTemplates();
   const t = templates[templateKey];
   activeWorkout = {
@@ -875,12 +939,12 @@ function startWorkout(templateKey) {
     templateKey,
     startTime: Date.now(),
     exercises: t.exercises.map(e => ({
-      name: e.variants ? e.variants[0] : e.name,
+      name: e.name,
       displayName: e.name,
-      equip: e.equip,
-      cat: e.cat,
-      repRange: e.reps,
-      variants: e.variants || null,
+      equip: e.equip || '',
+      cat: e.cat || '',
+      repRange: e.reps || null,
+      variants: null,
       sets: []
     }))
   };
@@ -894,6 +958,7 @@ function startBlankWorkout() {
 
 function showActiveWorkout() {
   document.getElementById('log-idle').style.display = 'none';
+  document.getElementById('workout-detail-view').style.display = 'none';
   document.getElementById('workout-active').style.display = 'block';
   document.getElementById('active-name').textContent = activeWorkout.name;
   document.getElementById('header-sub').textContent = 'Workout in progress';
@@ -1257,6 +1322,7 @@ function finishWorkout() {
   activeWorkout = null;
   DB.set('activeWorkout', null);
   document.getElementById('log-idle').style.display = 'block';
+  document.getElementById('workout-detail-view').style.display = 'none';
   document.getElementById('workout-active').style.display = 'none';
   document.getElementById('header-sub').textContent = 'Track your lifts';
   document.getElementById('fab').style.display = 'none';
@@ -1272,6 +1338,7 @@ function confirmDiscard() {
   activeWorkout = null;
   DB.set('activeWorkout', null);
   document.getElementById('log-idle').style.display = 'block';
+  document.getElementById('workout-detail-view').style.display = 'none';
   document.getElementById('workout-active').style.display = 'none';
   document.getElementById('header-sub').textContent = 'Track your lifts';
   document.getElementById('fab').style.display = 'none';
